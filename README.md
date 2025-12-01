@@ -15,9 +15,9 @@ My solution for both parts is just 111 bytes:
 ```code
 &fras"1"
 ⬚0+[50]×⊙≡(˜ⁿ¯1=@L↙1°□)⊸≡(⋕↘1°□)⊜□⊸≠@\n
-Part₁←/+=0\(◿100+)
-Part₂←/+≡(/+°□=0)◿100+⊃(≡□↘¯1\+)(≡(□+⇡⟜(>0))↘1)
-⊃Part₂Part₁
+A←/+=0\(◿100+)
+B←/+≡(/+°□=0)◿100+⊃(≡□↘¯1\+)(≡(□+⇡⟜(>0))↘1)
+⊃B A
 ```
 
 Yes this looks incomprehensible, but that is just cause you don't understand the
