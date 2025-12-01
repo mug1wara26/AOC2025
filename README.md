@@ -10,14 +10,15 @@ From Uiua's [website](https://www.uiua.org/):
 > Uiua (wee-wuh) is a general purpose array-oriented programming language with a
 > focus on simplicity, beauty, and tacit code.
 
-My solution for both parts is just 111 bytes:
+My solution for both parts is just 109 bytes:
 
 ```code
 &fras"1"
 ⬚0+[50]×⊙≡(˜ⁿ¯1=@L↙1°□)⊸≡(⋕↘1°□)⊜□⊸≠@\n
-A←/+=0\(◿100+)
-B←/+≡(/+°□=0)◿100+⊃(≡□↘¯1\+)(≡(□+⇡⟜(>0))↘1)
-⊃B A
+A←◿100+
+B←/+=0\A
+C←/+≡(/+°□=0)A⊃(≡□↘¯1\+)(≡(□+⇡⟜(>0))↘1)
+⊃C B
 ```
 
 Yes this looks incomprehensible, but that is just cause you don't understand the
