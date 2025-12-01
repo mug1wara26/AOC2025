@@ -1,6 +1,7 @@
 # AOC2025 Solutions
 
-Here are my solutions to AOC2025. I aim to use a different language every day.
+Here are my solutions to [AOC2025](https://adventofcode.com/2025). I aim to use
+a different language every day.
 
 ## Day 1: Uiua
 
