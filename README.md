@@ -110,3 +110,16 @@ I love S-Expressions, in contrast with yesterday's solution, today's solution is
 
 (display (sol parsed invalid2))
 ```
+
+## Day 3: C and Uiua
+
+For day 3, I solved it first in C using a typical DP solution. Then I solved it
+again in Uiua using a greedy approach. The DP solution is quite boring so I
+won't paste it here, but the Uiua solution is just 69 bytes!
+
+```
+&fras"3"
+⊜∘⊸≠@\n
+A←/+≡(⋕≡⊡⊙¤-1↘1⊸˜\(++1⊙(⊢⍖˜↘)⟜↘))¤⊂[0]+1⇌⇡¯
+⊃(A12|A2)
+```
