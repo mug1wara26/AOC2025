@@ -140,7 +140,7 @@ I was busy. After reaching home at midnight, I decided I did not want to waste
 Python on such an easy day, so I learnt Rust and wrote a more efficient
 solution.
 
-```
+```rust
 use std::fs;
 
 fn get_surrounding_rolls(contents: &[Vec<u8>], row: usize, col: usize) -> Vec<(usize, usize)> {
