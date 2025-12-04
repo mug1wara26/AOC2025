@@ -29,8 +29,9 @@ with Uiua and would recommend you to learn it too through the
 
 ## Day 2: Chez scheme
 
-I love S-Expressions, in contrast with yesterday's solution, today's solution is
-76 lines long.
+I love S-Expressions.
+
+In contrast with yesterday's solution, today's solution is 76 lines long.
 
 ```scheme
 (define (split-string s delim)
@@ -122,4 +123,86 @@ won't paste it here, but the Uiua solution is just 69 bytes!
 ⊜∘⊸≠@\n
 A←/+≡(⋕≡⊡⊙¤-1↘1⊸˜\(++1⊙(⊢⍖˜↘)⟜↘))¤⊂[0]+1⇌⇡¯
 ⊃(A12|A2)
+```
+
+We basically just find the index of the max character from \[0:-11\], lets call
+this index `n`. Then we find the index of the max character from \[n:-10\], and
+keep repeating this procedure until we get the all 12 characters. Uiua has a
+handy function called [`fall`](https://www.uiua.org/docs/fall) that returns the
+indices of the list if its elements were sorted in descending order, while this
+is `O(n log n)`, if we use the [`first`](https://www.uiua.org/docs/first)
+function to only get the max index, the Uiua interpreter optimizes it to `O(n)`.
+
+## Day 4: Rust
+
+I originally solved today's solution with a simple brute force in Python because
+I was busy. After reaching home at midnight, I decided I did not want to waste
+Python on such an easy day, so I learnt Rust and wrote a more efficient
+solution.
+
+```
+use std::fs;
+
+fn get_surrounding_rolls(contents: &[Vec<u8>], row: usize, col: usize) -> Vec<(usize, usize)> {
+    let height = contents.len();
+    let width = contents[0].len();
+
+    let row_start = row.saturating_sub(1);
+    let row_end = (row + 2).min(height);
+    let col_start = col.saturating_sub(1);
+    let col_end = (col + 2).min(width);
+
+    contents[row_start..row_end]
+        .iter()
+        .enumerate()
+        .flat_map(|(i, r)| {
+            r[col_start..col_end]
+                .iter()
+                .enumerate()
+                .filter(move |&(j, &cell)| {
+                    cell == b'@' && (row_start + i, col_start + j) != (row, col)
+                })
+                .map(move |(j, _)| (row_start + i, col_start + j))
+        })
+        .collect()
+}
+
+fn main() {
+    let binding = fs::read_to_string("4").expect("read the file");
+    let mut contents: Vec<Vec<u8>> = binding.lines().map(|s| s.as_bytes().to_vec()).collect();
+
+    let height = contents.len();
+    let width = contents[0].len();
+
+    let mut indices = Vec::new();
+    for row in 0..height {
+        for col in 0..width {
+            if contents[row][col] == b'@' && get_surrounding_rolls(&contents, row, col).len() < 4 {
+                indices.push((row, col));
+                contents[row][col] = b'.';
+            }
+        }
+    }
+
+    let mut total = indices.len();
+
+    println!("Part 1: {}", total);
+
+    while !indices.is_empty() {
+        let mut temp = Vec::new();
+        for (r, c) in indices {
+            for (row, col) in get_surrounding_rolls(&contents, r, c) {
+                if get_surrounding_rolls(&contents, row, col).len() < 4 {
+                    temp.push((row, col));
+                    contents[row][col] = b'.';
+                }
+            }
+        }
+
+        total += temp.len();
+        indices = temp;
+    }
+
+    println!("Part 2: {}", total);
+}
 ```
