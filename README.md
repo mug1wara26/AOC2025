@@ -206,3 +206,42 @@ fn main() {
     println!("Part 2: {}", total);
 }
 ```
+
+## Day 5: Zig
+
+Once again, I initially solved it in Python then revisited the problem at the
+end of the day in a new language. Having an implementation reference is really
+useful when trying to solve these days with a completely new language so I think
+I'll be doing the same for future days with foreign languages. Since the Zig
+implementation is quite long, and the logic is basically the same as the Python
+one, I'll just paste the Python solution here
+
+```py
+inp = [i for i in open("5").read().splitlines()]
+ranges = [list(map(int, i.split("-"))) for i in inp[: inp.index("")]]
+ids = map(int, inp[inp.index("") + 1 :])
+
+total = 0
+for i in ids:
+    for r in ranges:
+        if r[0] <= i <= r[1]:
+            total += 1
+            break
+
+print(f"part 1: {total}")
+
+ranges.sort(key=lambda x: x[0])
+
+i = 0
+while i < len(ranges) - 1:
+    curr = ranges[i]
+    next_range = ranges[i + 1]
+    if next_range[0] <= curr[1] + 1:
+        if next_range[1] > curr[1]:
+            curr[1] = next_range[1]
+        del ranges[i + 1]
+    else:
+        i += 1
+
+print(f"part 2: {sum(map(lambda x: x[1] - x[0] + 1, ranges))}")
+```
