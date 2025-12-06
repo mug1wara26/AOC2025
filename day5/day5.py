@@ -1,4 +1,4 @@
-inp = [i for i in open("5").read().splitlines()]
+inp = open("5").read().splitlines()
 ranges = [list(map(int, i.split("-"))) for i in inp[: inp.index("")]]
 ids = map(int, inp[inp.index("") + 1 :])
 
