@@ -64,8 +64,8 @@ modifier called `by` that modifies the function to keep it's last argument on
 the stack after its outputs. So when we do `by neq @\n`, our stack now looks
 like this:
 
-1.Some really long array of characters 0. \
-Some really long array of 1s and 0s
+1.Some really long array of characters \
+0.Some really long array of 1s and 0s
 
 Lastly, I'll just copy paste what the partition function does from the docs:
 
