@@ -49,7 +49,8 @@ names to make it more readable. This line is `partition identity by neq @\n`.
 The `@\n` at the end is just the new line character. As I mentioned above,
 literal values gets pushed onto the stack, so now our stack looks something like
 
-1.Some really long array of characters 0.`@\n`, the newline character
+1.Some really long array of characters \
+0.`@\n`, the newline character
 
 Since there is no bool data type, != just returns 1 if neq and 0 otherwise. !=
 is also a pervasive function, so `≠ @- "This-is-a-string"` will return the array
@@ -63,7 +64,8 @@ modifier called `by` that modifies the function to keep it's last argument on
 the stack after its outputs. So when we do `by neq @\n`, our stack now looks
 like this:
 
-1.Some really long array of characters 0.Some really long array of 1s and 0s
+1.Some really long array of characters 0. \
+Some really long array of 1s and 0s
 
 Lastly, I'll just copy paste what the partition function does from the docs:
 
@@ -109,7 +111,8 @@ parses the operator line in the input. The reason we use `first` instead of
 character into its own array. Now our stack looks like:
 
 1.Array of operator characters (Recall `on` puts this after the original
-arguments) 0.Array of lines from the input
+arguments) \
+0.Array of lines from the input
 
 The next line `⍉↘¯1` is quite simple, it is just `transpose drop negate 1`.
 
