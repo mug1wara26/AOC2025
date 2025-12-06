@@ -245,3 +245,63 @@ while i < len(ranges) - 1:
 
 print(f"part 2: {sum(map(lambda x: x[1] - x[0] + 1, ranges))}")
 ```
+
+## Day 6: Elixir
+
+Today, I initially solved with Python, then solved part 2 with Uiua and Elixir
+cause part 1 is pretty boring... that counts right?
+
+View my Uiua code
+[on the iteractive editor](https://www.uiua.org/pad?src=0_18_0-dev_3__JmZyYXMiNiIK4oqc4oiY4oq44omgQFxuCuKfnCjiipziiqLiirjiiaBAIOKKoykK4o2J4oaYwq8xCuKKnCjilqHii5Up4oq4KOKJoDDiiaEvK-KJoEAgKQovK8uc4omh4peHKOKorC8rL8OX4oqiPUAqKQo=).
+
+```
+&fras"6"
+⊜∘⊸≠@\n
+⟜(⊜⊢⊸≠@ ⊣)
+⍉↘¯1
+⊜(□⋕)⊸(≠0≡/+≠@ )
+/+˜≡◇(⨬/+/×⊢=@*)
+```
+
+Here is my part 2 Elixir code:
+
+```elixir
+{:ok, file} = File.read("6")
+inputs = String.split(file, "\n")
+nums = Enum.map(Enum.slice(inputs, 0..3), fn x -> String.graphemes(x) end)
+zipped = Enum.zip_with(nums, fn [w, x, y, z] -> [w, x, y, z] end)
+ops = String.split(Enum.at(inputs, 4))
+
+defmodule Part2 do
+  def solve([], [], acc) do
+    acc
+  end
+
+  def solve([nums | rest_nums], [op | rest_ops], acc) do
+    if op == "*" do
+      solve(rest_nums, rest_ops, acc + Enum.reduce(nums, fn x, y -> x * y end))
+    else
+      solve(rest_nums, rest_ops, acc + Enum.sum(nums))
+    end
+  end
+
+  def parse([], acc) do
+    Enum.reverse(acc)
+  end
+
+  def parse([head | tail], [acc_head | acc_tail]) do
+    if head == [" ", " ", " ", " "] do
+      parse(tail, [[] | [acc_head | acc_tail]])
+    else
+      parsed = String.to_integer(String.trim(List.to_string(head)))
+      parse(tail, [[parsed | acc_head] | acc_tail])
+    end
+  end
+
+  def parse(nums) do
+    parse(nums, [[]])
+  end
+end
+
+IO.puts(Part2.solve(Part2.parse(zipped), ops, 0))
+```
