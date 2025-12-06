@@ -263,6 +263,9 @@ View my Uiua code
 /+˜≡◇(⨬/+/×⊢=@*)
 ```
 
+I also explained how my Uiua code worked on the NUS Hackers AOC discord channel,
+so I pasted it over to a readme file [in the day6 folder](/day6/README.md)
+
 Here is my part 2 Elixir code:
 
 ```elixir
