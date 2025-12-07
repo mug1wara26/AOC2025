@@ -1,6 +1,6 @@
 from functools import reduce
 
-inp = [i for i in open("6").read().splitlines()]
+inp = open("6").read().splitlines()
 nums = [list(map(int, i.split())) for i in inp[:-1]]
 ops = inp[-1].split()
 
