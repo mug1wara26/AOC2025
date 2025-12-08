@@ -8,3 +8,4 @@
 !*/*.exs
 !*/*.md
 !*/*.go
+!day8/day8_ocaml
