@@ -21,7 +21,7 @@ let () =
   | exception End_of_file -> acc
   | line ->
       let nums = line |> String.split_on_char ',' 
-                      |> List.map (fun s -> int_of_string (String.trim s)) in
+                      |> List.map (fun s -> int_of_string s) in
       match nums with
       | [x; y; z] -> read_lines ic ((x, y, z) :: acc)
       | _ -> failwith ("Invalid line: " ^ line)
