@@ -308,3 +308,218 @@ end
 
 IO.puts(Part2.solve(Part2.parse(zipped), ops, 0))
 ```
+
+## Day 7: Go and Uiua
+
+Day 7 was super easy, my Go solution was pretty much just a port of my Python
+solution.
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	filePath := "7"
+
+	file, _ := os.Open(filePath)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	scanner.Scan()
+	line := scanner.Text()
+
+	beams := make([]int, len(line))
+	beams[strings.IndexByte(line, 'S')] = 1
+	part1 := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		new_beams := make([]int, len(line))
+
+		for i, r := range line {
+			if r == '^' {
+				if beams[i] != 0 {
+					new_beams[i-1] += beams[i]
+					new_beams[i+1] += beams[i]
+					part1 += 1
+				}
+			} else {
+				new_beams[i] += beams[i]
+			}
+		}
+
+		beams = new_beams
+	}
+
+	part2 := 0
+
+	for _, n := range beams {
+		part2 += n
+	}
+
+	fmt.Println(part1)
+	fmt.Println(part2)
+}
+```
+
+My Uiua solution is the shortest one yet, when golfed it is just 59 bytes! The
+solution method also slightly differs, as I iterate through the input, I keep
+track of the number of beams in each column. For each row in the input, I mask
+the beams the hit a splitter, apply a rotate left and right to simulate them
+splitting, and add them up together with the beams that did not hit the
+splitters. At the end of the iteration I can just do a `reduce add`.
+
+```
+0
+&fras"7"
+⊜∘⊸≠@\n # Parse by new line
+=@S°⊂   # create array of 0s except for start
+˜(⊙∘)
+Part₁ ← +/+≠0× # Count number of beams that hit splitters
+# Get beams that hit splitters,
+# rotate 1 and rotate -1,
+# add together with beams that miss splitters
+Part₂ ← ++⊃(⊃(↻1|↻¯1)×|×¬)
+∧(⊃(Part₂|Part₁)=@^)
+/+
+```
+
+## Day 8: OCaml
+
+My favourite day so far, probably cause its the hardest so far. The
+implementation is quite simple, stick all pair combinations in a heap, where the
+priority is the euclidean distance between the two points, then use a UFDS to
+efficiently track the circuits. Luckily OCaml added priority queues to the
+standard library about 2 months ago, but there's no UFDS so I implemented my
+own.
+
+UFDS:
+
+```ocaml
+type 'a t = {
+  parent : ('a, 'a) Hashtbl.t;
+  rank : ('a, int) Hashtbl.t ;
+}
+
+let create (n : int) : 'a t = {
+  parent = Hashtbl.create n;
+  rank = Hashtbl.create n;
+}
+
+let rec find ds x = match Hashtbl.find_opt ds.parent x with
+  | Some parent ->
+      if parent = x then parent
+      else begin
+        let parent = find ds parent in
+        Hashtbl.replace ds.parent x parent;
+        parent
+      end;
+  | None -> (
+      Hashtbl.add ds.parent x x;
+      Hashtbl.add ds.rank x 0;
+      x
+    )
+
+let union ds a b =
+  let a = find ds a in
+  let b = find ds b in
+  if a <> b then
+    let a_rank = Hashtbl.find ds.rank a in
+    let b_rank = Hashtbl.find ds.rank b in
+    if a_rank < b_rank then
+      Hashtbl.replace ds.parent a b
+    else begin
+      Hashtbl.replace ds.parent b a;
+      if a_rank = b_rank then Hashtbl.replace ds.rank a (a_rank + 1)
+    end
+```
+
+Main solution:
+
+```ocaml
+open Day8
+
+module Prio : Pqueue.OrderedType with type t = int = struct
+  type t = int
+  let compare = compare
+end
+
+module PrioQueue = Pqueue.MakeMinPoly(struct
+  type 'a t = Prio.t * 'a
+  let compare (p1, _) (p2, _) = Prio.compare p1 p2
+end)
+
+exception Value_not_found of string
+
+let () =
+  let start_time = Sys.time() in
+  let pq = PrioQueue.create() in
+  let ic = open_in "../8" in
+  let rec read_lines ic acc =
+  match input_line ic with
+  | exception End_of_file -> acc
+  | line ->
+      let nums = line |> String.split_on_char ','
+                      |> List.map (fun s -> int_of_string (String.trim s)) in
+      match nums with
+      | [x; y; z] -> read_lines ic ((x, y, z) :: acc)
+      | _ -> failwith ("Invalid line: " ^ line)
+  in
+  let result = read_lines ic [] in
+
+  let rec all_pair_combinations coords acc = match coords with
+    | [] -> acc
+    | hd :: tl -> all_pair_combinations tl ((List.map (fun x -> (hd, x)) tl) @ acc)
+  in
+
+  let square x = x * x in
+  let distance (x1, y1, z1) (x2, y2, z2) = square (x1 - x2) + square (y1 - y2) + square (z1 - z2) in
+
+  List.iter (fun x -> PrioQueue.add pq (distance (fst x) (snd x), x)) (all_pair_combinations result []);
+
+  let get_x (x, _, _) = x in
+  let uf = List.length result |> Union_find.create in
+
+  let rec solve i n =
+    let pair = match PrioQueue.pop_min pq with
+      | Some (x, y) -> y
+      | None -> raise (Value_not_found "Expected a pair")
+    in
+    if i = 1000 then begin
+      Hashtbl.to_seq_keys uf.parent
+      |> Seq.iter (fun x -> Union_find.find uf x |> ignore);
+
+      Hashtbl.to_seq_values uf.parent
+      |> Seq.fold_left (fun acc x -> (match Hashtbl.find_opt acc x with
+      | Some v -> Hashtbl.replace acc x (v+1)
+      | None -> Hashtbl.add acc x 1
+      ); acc)
+      (Hashtbl.create 100)
+      |> Hashtbl.to_seq_values
+      |> List.of_seq
+      |> List.sort (fun x y -> -(compare x y))
+      |> List.take 3
+      |> List.fold_left (fun x y -> x * y) 1
+      |> Printf.printf "Part 1: %d\n"
+    end;
+
+    if Union_find.find uf (fst pair) <> Union_find.find uf (snd pair) then begin
+      Union_find.union uf (fst pair) (snd pair);
+      if n = 2 then
+        Printf.printf "Part 2: %d\n" ((fst pair |> get_x) * (snd pair |> get_x))
+      else
+        solve (i + 1) (n - 1)
+    end
+    else solve (i + 1) n
+  in
+
+  solve 0 (List.length result);
+  Printf.printf "Execution time: %f seconds\n" (Sys.time() -. start_time);
+```
