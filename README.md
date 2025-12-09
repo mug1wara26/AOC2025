@@ -523,3 +523,13 @@ let () =
   solve 0 (List.length result);
   Printf.printf "Execution time: %f seconds\n" (Sys.time() -. start_time);
 ```
+
+## Day 9: Python
+
+Another hard part 2, future days will probably be harder to make up for the
+easier past days. I might end up using Python for this day, cause I'm lazy to
+code it out in another language.
+
+Part 1 is trivial, since you can just do an O(n^2) brute force. Part 2 is more
+interesting, and I used a ray casting algorithm to detect if a point was in the
+overall polygon.
