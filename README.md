@@ -533,3 +533,148 @@ code it out in another language.
 Part 1 is trivial, since you can just do an O(n^2) brute force. Part 2 is more
 interesting, and I used a ray casting algorithm to detect if a point was in the
 overall polygon.
+
+Before starting on part 2, I plotted out all the points, and joined the adjacent
+points together, and found out that inputs for today is of this shape:
+<img width="2086" height="1101" alt="image" src="https://github.com/user-attachments/assets/8ce047f2-3ec5-48e1-9652-acf77bdba3eb" />
+This trivialises the problem a lot, observe that to obtain the maximum area, we
+must choose one of those 2 points lying in the middle. Furthermore if we choose
+the higher mid point, then we can only form rectangles with points above it,
+otherwise it will cross the gap in the middle. Same thing for the lower mid
+point.
+
+So my solving strategy was to first find these 2 mid points, then iterate over
+all points to the left of them, and try to form a valid rectangle. To detect if
+a rectangle is valid, I check if the other 2 corners of the rectangle lie inside
+the polygon, using a simple ray casting trick. If you shoot a beam to the left
+of the point, and it intersects an odd number of vertical walls, then it is in
+the polygon.
+
+Along with some minor optimizations, I got my overall solution down to 30ms on
+my machine! I did have one hiccup, where my area function was defined wrongly
+(try and spot the mistake below), and I spent half an hour debugging my code
+before realising.
+
+```py
+def area(p1, p2):
+    return abs((p1[0] - p2[0] + 1) * (p1[1] - p2[1] + 1))
+```
+
+Here is my overall solution:
+
+```py
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import time
+
+start_time = time.time()
+inp = list(map(lambda x: tuple(map(int, x.split(","))), open("9").read().splitlines()))
+
+
+def area(p1, p2):
+    return (abs(p1[0] - p2[0]) + 1) * (abs(p1[1] - p2[1]) + 1)
+
+
+max_area = 0
+
+for i in range(len(inp)):
+    for j in range(i + 1, len(inp)):
+        max_area = max(max_area, area(inp[i], inp[j]))
+
+print(f"Part 1: {max_area}")
+
+vertical_lines = sorted(
+    [sorted(inp[i : i + 2], key=lambda x: x[1]) for i in range(0, len(inp), 2)],
+    key=lambda x: x[0][0],
+)
+
+horizontal_lines = [
+    sorted(inp[i : i + 2], key=lambda x: x[0]) for i in range(1, len(inp) - 1, 2)
+]
+
+
+def in_poly(p):
+    # Ray cast to left
+    num_crossings = 0
+    lows = set()
+    highs = set()
+    for line in vertical_lines:
+        if line[0][0] >= p[0]:
+            break
+        if line[0][1] <= p[1] <= line[1][1]:
+            if line[0][1] == p[1] and p[1] in highs:
+                continue
+            if line[1][1] == p[1] and p[1] in lows:
+                continue
+            lows.add(line[0][1])
+            highs.add(line[1][1])
+            num_crossings += 1
+
+    return num_crossings % 2 == 1
+
+
+longest_two = sorted(
+    horizontal_lines, key=lambda x: abs(x[0][0] - x[1][0]), reverse=True
+)
+mid1 = (
+    longest_two[0][0]
+    if longest_two[0][0][0] > longest_two[0][1][0]
+    else longest_two[0][1]
+)
+mid2 = (
+    longest_two[1][0]
+    if longest_two[1][0][0] > longest_two[1][1][0]
+    else longest_two[1][1]
+)
+
+if mid1[1] < mid2[1]:
+    mid1, mid2 = mid2, mid1
+
+mid1_ylimit = 0
+mid2_ylimit = 0
+for i in horizontal_lines:
+    if i[0][1] > mid1[1] and i[0][0] <= mid1[0] <= i[1][0]:
+        mid1_ylimit = i[0][1]
+    if i[0][1] < mid2[1] and i[0][0] <= mid2[0] <= i[1][0]:
+        mid2_ylimit = i[0][1]
+
+
+point = []
+max_area = 0
+
+for p in inp:
+    m = None
+    if p[0] >= mid1[0]:
+        continue
+    if mid1[1] <= p[1] <= mid1_ylimit:
+        m = mid1
+    elif mid2[1] <= p[1] <= mid2_ylimit:
+        m = mid2
+    if m is not None:
+        p1, p2 = (p[0], m[1]), (m[0], p[1])
+        if (a := area(m, p)) > max_area and in_poly(p1) and in_poly(p2):
+            max_area = a
+            point = [p if p[1] < m[1] else p1, abs(p[0] - m[0]), abs(p[1] - m[1])]
+print(f"Part 2: {max_area}")
+print(f"Execution time: {time.time() - start_time}")
+rect = patches.Rectangle(
+    point[0],
+    point[1],
+    point[2],
+    facecolor="lightblue",
+    edgecolor="blue",
+    linewidth=2,
+)
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.add_patch(rect)
+x = [i[0] for i in inp]
+y = [i[1] for i in inp]
+for i in range(len(inp) - 1):
+    plt.plot(x[i : i + 2], y[i : i + 2], "ro-")
+plt.show()
+```
+
+This was the rectangle my code found:
+<img width="2089" height="1109" alt="image" src="https://github.com/user-attachments/assets/4292292d-2762-4062-9bc6-747bdd62d675" />
