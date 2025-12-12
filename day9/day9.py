@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import time
 
 start_time = time.time()
@@ -74,7 +72,6 @@ for i in horizontal_lines:
         mid2_ylimit = i[0][1]
 
 
-point = []
 max_area = 0
 
 for p in inp:
@@ -89,23 +86,5 @@ for p in inp:
         p1, p2 = (p[0], m[1]), (m[0], p[1])
         if (a := area(m, p)) > max_area and in_poly(p1) and in_poly(p2):
             max_area = a
-            point = [p if p[1] < m[1] else p1, abs(p[0] - m[0]), abs(p[1] - m[1])]
 print(f"Part 2: {max_area}")
 print(f"Execution time: {time.time() - start_time}")
-rect = patches.Rectangle(
-    point[0],
-    point[1],
-    point[2],
-    facecolor="lightblue",
-    edgecolor="blue",
-    linewidth=2,
-)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.add_patch(rect)
-x = [i[0] for i in inp]
-y = [i[1] for i in inp]
-for i in range(len(inp) - 1):
-    plt.plot(x[i : i + 2], y[i : i + 2], "ro-")
-plt.show()

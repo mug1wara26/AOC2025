@@ -524,11 +524,10 @@ let () =
   Printf.printf "Execution time: %f seconds\n" (Sys.time() -. start_time);
 ```
 
-## Day 9: Python
+## Day 9: Java
 
 Another hard part 2, future days will probably be harder to make up for the
-easier past days. I might end up using Python for this day, cause I'm lazy to
-code it out in another language.
+easier past days.
 
 Part 1 is trivial, since you can just do an O(n^2) brute force. Part 2 is more
 interesting, and I used a ray casting algorithm to detect if a point was in the
@@ -560,14 +559,11 @@ def area(p1, p2):
     return abs((p1[0] - p2[0] + 1) * (p1[1] - p2[1] + 1))
 ```
 
-Here is my overall solution:
+Here is my overall solution, while I did solve it with Java, the solution method
+did not defer from my original Python solution, and it's just more verbose, so I
+will just paste my Python solution here.:
 
 ```py
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import time
-
-start_time = time.time()
 inp = list(map(lambda x: tuple(map(int, x.split(","))), open("9").read().splitlines()))
 
 
@@ -639,7 +635,6 @@ for i in horizontal_lines:
         mid2_ylimit = i[0][1]
 
 
-point = []
 max_area = 0
 
 for p in inp:
@@ -654,27 +649,122 @@ for p in inp:
         p1, p2 = (p[0], m[1]), (m[0], p[1])
         if (a := area(m, p)) > max_area and in_poly(p1) and in_poly(p2):
             max_area = a
-            point = [p if p[1] < m[1] else p1, abs(p[0] - m[0]), abs(p[1] - m[1])]
-print(f"Part 2: {max_area}")
-print(f"Execution time: {time.time() - start_time}")
-rect = patches.Rectangle(
-    point[0],
-    point[1],
-    point[2],
-    facecolor="lightblue",
-    edgecolor="blue",
-    linewidth=2,
-)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.add_patch(rect)
-x = [i[0] for i in inp]
-y = [i[1] for i in inp]
-for i in range(len(inp) - 1):
-    plt.plot(x[i : i + 2], y[i : i + 2], "ro-")
-plt.show()
 ```
 
 This was the rectangle my code found:
 <img width="2089" height="1109" alt="image" src="https://github.com/user-attachments/assets/4292292d-2762-4062-9bc6-747bdd62d675" />
+
+## Day 10: Python
+
+Day 10 was the hardest day out of all 12 days, which is why it is the Python
+day. The second part required math I did not know, so I honestly did not solve
+it until the last day, where it was required to get the last star. In the end, I
+still don't really know how to solve it, I just googled a bit on how to use z3
+and plugged the problem into the optimizer to find the minimal solution.
+
+```py
+from collections import deque
+from z3 import Int, Optimize, Sum, sat
+
+inp = list(map(str.split, open("10").read().splitlines()))
+
+data = []
+for line in inp:
+    temp = []
+    temp.append(sum(1 << i for i, v in enumerate(line[0][1:-1]) if v == "#"))
+    temp += list(map(lambda x: tuple(map(int, x[1:-1].split(","))), line[1:-1]))
+    temp.append(tuple(map(int, line[-1][1:-1].split(","))))
+
+    data.append(tuple(temp))
+
+part1 = 0
+for line in data:
+    goal = line[0]
+    q = deque([(i, 0, 0) for i in line[1:-1]])
+    visited = set()
+    while (curr := q.popleft())[1] != goal:
+        new = curr[1]
+        switch = 0
+        for i in curr[0]:
+            switch += 1 << i
+        new ^= switch
+
+        if new in visited:
+            continue
+        visited.add(new)
+
+        q.extend([(i, new, curr[2] + 1) for i in line[1:-1]])
+    part1 += curr[2]
+
+print(f"Part 1: {part1}")
+
+part2 = 0
+
+for line in data:
+    ints = []
+
+    s = Optimize()
+
+    for i in range(len(line[1:-1])):
+        ints.append(Int(f"v{i}"))
+        s.add(ints[i] >= 0)
+
+    for i in range(len(line[-1])):
+        x = []
+        for j in range(len(line[1:-1])):
+            if i in line[j + 1]:
+                x.append(ints[j])
+
+        s.add(Sum(x) == line[-1][i])
+
+    s.minimize(Sum(ints))
+
+    if s.check() == sat:
+        m = s.model()
+        part2 += m.evaluate(Sum(ints)).as_long()
+print(f"Part 2: {part2}")
+```
+
+## Day 11: JavaScript
+
+Day 11 was so much easier than day 10, that it was kinda underwhelming. It's
+just a depth first search with memoization. Since my JavaScript solution is the
+exact same as my Python solution, just with more lines, I will be pasting my
+Python solution here instead.
+
+```py
+from functools import cache
+import time
+
+start = time.time()
+
+edges = {
+    i[: i.index(":")]: i[i.index(" ") :].strip().split()
+    for i in open("11").read().splitlines()
+}
+
+edges["out"] = []
+
+
+@cache
+def num_paths(src, dst):
+    ret = 0
+    for i in edges[src]:
+        if i == dst:
+            ret += 1
+        else:
+            ret += num_paths(i, dst)
+
+    return ret
+
+
+print(f"part 1: {num_paths('you', 'out')}")
+part2 = num_paths("svr", "fft") * num_paths("fft", "dac") * num_paths("dac", "out")
+print(f"part 2: {part2}")
+
+print(time.time() - start)
+```
+
+## Day 12: ???
+
+Coming soon...

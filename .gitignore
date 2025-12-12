@@ -8,4 +8,6 @@
 !*/*.exs
 !*/*.md
 !*/*.go
+!*/*.java
+!*/*.js
 !day8/day8_ocaml
