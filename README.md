@@ -1,7 +1,20 @@
 # AOC2025 Solutions
 
-Here are my solutions to [AOC2025](https://adventofcode.com/2025). I aim to use
-a different language every day.
+Here are my solutions to [AOC2025](https://adventofcode.com/2025). For each day,
+I have used a different language.
+
+1. Uiua
+2. Chez Scheme
+3. C
+4. Rust
+5. Zig
+6. Elixir
+7. Go
+8. OCaml
+9. Java
+10. Python
+11. JavaScript
+12. JLox
 
 ## Day 1: Uiua
 
