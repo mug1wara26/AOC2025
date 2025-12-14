@@ -10,4 +10,5 @@
 !*/*.go
 !*/*.java
 !*/*.js
+!*/*.jlox
 !day8/day8_ocaml

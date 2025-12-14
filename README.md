@@ -765,6 +765,41 @@ print(f"part 2: {part2}")
 print(time.time() - start)
 ```
 
-## Day 12: ???
+## Day 12: JLox
 
-Coming soon...
+The last day presented us with an NP-Hard problem, which shocked many of us when
+we initially saw it. We are given a set of 6 irregular shapes, each line in the
+puzzle gives us the area of a grid and the number of each shape we must fit in
+the grid. Then we have to find the number of grids where such an arrangement is
+possible.
+
+Luckily, the inputs were very nice, and in all cases, you can just check if the
+grid is large enough to fit all the shapes laid out side by side without any
+intersection between the shapes.
+
+Since the solution is so simple, I decided to implement it in my own programming
+language! I have been working on [JLox](https://github.com/mug1wara26/jlox) from
+[Crafting Interpreters](https://craftinginterpreters.com/) and decided to add
+enough native functions such as `stringSplit` and `read` to make the problem
+solvable. I found it funny that although `stringSplit` returns an array, there
+is no way to actually create arrays in my language yet.
+
+```
+var inp = stringSplit(read("12"), "\n");
+var part2 = 0;
+
+for (var i = 30; i < arrayLength(inp); i = i + 1) {
+  var line = stringSplit(inp[i], ":");
+  var size = stringSplit(line[0], "x");
+
+  var maxBlocks = floor(stringToNumber(size[0]) / 3) * floor(stringToNumber(size[1]) / 3);
+  var total = 0;
+  for (var j = 1; j < 7; j = j + 1)
+    total = total + stringToNumber(stringSplit(line[1], " ")[j]);
+
+  if (total <= maxBlocks)
+    part2 = part2 + 1;
+}
+
+print part2;
+```
